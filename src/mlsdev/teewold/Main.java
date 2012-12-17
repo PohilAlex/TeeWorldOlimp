@@ -34,14 +34,14 @@ public class Main {
 					case '1':
 						map[i][j] = -1;
 						break;
+					case 'n':
+						map[i][j] = -2;
+						break;
 					case 'x':
 						map[i][j] = -3;
 						break;
-					case 'n':
-						map[i][j] = 1;
-						break;
 					case 'R':
-						map[i][j] = -2;
+						map[i][j] = -4;
 						break;
 					default:
 						break;
@@ -53,9 +53,11 @@ public class Main {
 		}
 		
 		MapLogic logic = new MapLogic(map);
-		logic.printMap();
-		System.out.println();
-		logic.prepareMap();
+		map = null;
+		logic.calculate();
+		//logic.printMap();
+		//System.out.println();
+		//logic.prepareMap();
 		//logic.printMap();
 		
 	}

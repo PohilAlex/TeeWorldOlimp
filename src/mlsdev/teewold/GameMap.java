@@ -16,11 +16,14 @@ public class GameMap {
 		while (currStep.size() > 0) {
 			for (Point point : currStep) {
 				int value = map[point.y][point.x];
+				if (value < 0) {
+					value = 1;
+				}
 				if (analizeStep(point.x - 1, point.y , value)) {
 					nextStep.add(new Point(point.x - 1, point.y));
 				}
 				if (analizeStep(point.x + 1, point.y, value)) {
-					nextStep.add(new Point(point.x - 1, point.y));
+					nextStep.add(new Point(point.x + 1, point.y));
 				}
 				if (analizeStep(point.x, point.y - 1, value)) {
 					nextStep.add(new Point(point.x, point.y - 1));
@@ -31,8 +34,8 @@ public class GameMap {
 			}
 			currStep = nextStep;
 			nextStep = new ArrayList<Point>();
-			//printMap();
-			//System.out.println();
+			printMap();
+			System.out.println();
 		}
 	}
 	
@@ -74,14 +77,4 @@ public class GameMap {
 		}
 	}
 	
-	class Point {
-		int x;
-		int y;
-		
-		public Point(int x, int y) {
-			super();
-			this.x = x;
-			this.y = y;
-		}
-	}
 }
