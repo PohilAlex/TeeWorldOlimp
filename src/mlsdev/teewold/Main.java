@@ -54,7 +54,7 @@ public class Main {
 		
 		MapLogic logic = new MapLogic(map);
 		map = null;
-		logic.calculate();
+		logic.work();
 		//logic.printMap();
 		//System.out.println();
 		//logic.prepareMap();

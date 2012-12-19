@@ -1,14 +1,27 @@
 package mlsdev.teewold;
 
+import java.beans.FeatureDescriptor;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 public class GameMap {
 	int[][] map;
+	Point startPoint;
+	PointUtil pointUtil;
+	//boolean isCalcDistanse;
 	
 	public GameMap(int[][] map) {
 		this.map = map;
+		this.startPoint = new Point(0,0);
+		pointUtil = new PointUtil();
 	}
 	
-	public void prepareMap(Point startPoint) {
+	public void setStartPoint(Point startPoint) {
+		this.startPoint = startPoint;
+	}
+	
+	public void calcDistance() {
 		ArrayList<Point> nextStep = new ArrayList<Point>();
 		ArrayList<Point> currStep = new ArrayList<Point>();
 		currStep.add(startPoint);
@@ -37,6 +50,62 @@ public class GameMap {
 			printMap();
 			System.out.println();
 		}
+	}
+	
+	public PathNode findMinPath(Point endPoint) {
+		PathNode path = new PathNode();
+		ArrayList<PathNode> currNode = new ArrayList<PathNode>();
+		ArrayList<PathNode> nextNode = new ArrayList<PathNode>();
+		Comparator<Point> pointComerator = new Comparator<Point>() {
+			@Override
+			public int compare(Point o1, Point o2) {
+				if (getField(o1) < 0) {
+					return 1;
+				}
+				if (getField(o2) < 0) {
+					return -1;
+				}
+				return getField(o1) - getField(o2);
+			}
+		};
+		
+		//Anilize fist point in path
+		ArrayList<Point> nextPoints = pointUtil.getNear(endPoint);
+		Point min = Collections.min(nextPoints, pointComerator);
+		
+		for (Point point : nextPoints) {
+			if (getField(point) == getField(min)) {
+				currNode.add(path.add(point));
+				System.out.println(point.y  + " " + point.x + " - " + getField(point));
+			}
+		}
+		System.out.println("@@@@@@@@@");
+		
+		//Analize other point in path
+		while (currNode.size() > 0) {
+			for (PathNode node : currNode) {
+				Point point = node.getData();
+				int currLength = getField(point);
+				if (currLength == 2) {
+					break;
+				}
+				
+				for (Point nextPoint : pointUtil.getNear(point)) {
+					if (getField(nextPoint) == currLength - 1) {
+						nextNode.add(node.add(nextPoint));
+						System.out.println(nextPoint.y  + " " + nextPoint.x + " - " + getField(nextPoint));
+					}
+				}
+			}
+			currNode = nextNode;
+			nextNode = new ArrayList<PathNode>();
+			System.out.println("@@@@@@@@@");
+		}
+		return path;
+	}
+	
+	public int getField(Point point) {
+		return map[point.y][point.x];
 	}
 	
 	public boolean analizeStep(int x, int y, int prevValue) {
@@ -75,6 +144,50 @@ public class GameMap {
 			}
 			System.out.println();
 		}
+	}
+	
+	class PointUtil {
+		
+		public Point getUp(Point point) {
+			return checkPoint(point.getUp());
+		}
+		
+		public Point getDown(Point point) {
+			return checkPoint(point.getDown());
+		}
+		
+		public Point getLef(Point point) {
+			return checkPoint(point.getLeft());
+		}
+		
+		public Point getRight(Point point) {
+			return checkPoint(point.getRight());
+		}
+		
+		private Point checkPoint(Point point) {
+			try {
+				getField(point);
+			} catch (IndexOutOfBoundsException e) {
+				return null;
+			}
+			return point;
+		}
+		
+		public ArrayList<Point> getNear(Point point) {
+			ArrayList<Point> list = new ArrayList<Point>();
+			putPoint(list, getUp(point));
+			putPoint(list, getDown(point));
+			putPoint(list, getLef(point));
+			putPoint(list, getRight(point));
+			return list;
+		}
+		
+		private void putPoint(ArrayList<Point> list, Point point) {
+			if (point != null) {
+				list.add(point);
+			}
+		}
+		
 	}
 	
 }

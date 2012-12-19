@@ -13,12 +13,16 @@ public class MapLogic {
 		xMap = new GameMap(cloneArray(map));
 	}
 	
-	public void calculate() {
+	public void work() {
 		Point nStart = nMap.findPoint(-2);
-		nMap.prepareMap(nStart);
+		nMap.setStartPoint(nStart);
+		nMap.calcDistance();
 		System.out.println("########################################");
 		Point xStart = xMap.findPoint(-3);
-		xMap.prepareMap(xStart);
+		xMap.setStartPoint(xStart);
+		xMap.calcDistance();
+		
+		PathNode path = nMap.findMinPath(nMap.findPoint(-4));
 	}
 	
 	public int[][] cloneArray(int[][] array) {
