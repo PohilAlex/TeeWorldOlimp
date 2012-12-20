@@ -1,6 +1,5 @@
 package mlsdev.teewold;
 
-import java.beans.FeatureDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +16,12 @@ public class GameMap {
 		pointUtil = new PointUtil();
 	}
 	
+	
+	public PointUtil getPointUtil() {
+		return pointUtil;
+	}
+
+
 	public void setStartPoint(Point startPoint) {
 		this.startPoint = startPoint;
 	}
@@ -25,13 +30,11 @@ public class GameMap {
 		ArrayList<Point> nextStep = new ArrayList<Point>();
 		ArrayList<Point> currStep = new ArrayList<Point>();
 		currStep.add(startPoint);
-		
+		map[startPoint.y][startPoint.x] = 1;
 		while (currStep.size() > 0) {
 			for (Point point : currStep) {
 				int value = map[point.y][point.x];
-				if (value < 0) {
-					value = 1;
-				}
+				/*
 				if (analizeStep(point.x - 1, point.y , value)) {
 					nextStep.add(new Point(point.x - 1, point.y));
 				}
@@ -43,13 +46,18 @@ public class GameMap {
 				}
 				if (analizeStep(point.x, point.y + 1, value)) {
 					nextStep.add(new Point(point.x, point.y + 1));
+				}*/
+				for (Point p : point.getNear()) {
+					if (analizeStep(p.x, p.y, value)) {
+						nextStep.add(p);
+					}
 				}
 			}
 			currStep = nextStep;
 			nextStep = new ArrayList<Point>();
-			printMap();
-			System.out.println();
 		}
+		printMap();
+		System.out.println();
 	}
 	
 	public PathNode findMinPath(Point endPoint) {
@@ -59,20 +67,20 @@ public class GameMap {
 		Comparator<Point> pointComerator = new Comparator<Point>() {
 			@Override
 			public int compare(Point o1, Point o2) {
-				if (getField(o1) < 0) {
+				if (getField(o1) <= 0) {
 					return 1;
 				}
-				if (getField(o2) < 0) {
+				if (getField(o2) <= 0) {
 					return -1;
 				}
 				return getField(o1) - getField(o2);
 			}
 		};
-		
+		path.setData(endPoint);
 		//Anilize fist point in path
 		ArrayList<Point> nextPoints = pointUtil.getNear(endPoint);
 		Point min = Collections.min(nextPoints, pointComerator);
-		
+
 		for (Point point : nextPoints) {
 			if (getField(point) == getField(min)) {
 				currNode.add(path.add(point));
@@ -100,7 +108,7 @@ public class GameMap {
 			currNode = nextNode;
 			nextNode = new ArrayList<PathNode>();
 			System.out.println("@@@@@@@@@");
-		}
+		}	
 		return path;
 	}
 	
@@ -110,10 +118,10 @@ public class GameMap {
 	
 	public boolean analizeStep(int x, int y, int prevValue) {
 		try {
-			if (map[y][x] < 0) {
+			if (map[y][x] == -1) {
 				return false;
 			}
-			if (map[y][x] == 0 || map[y][x] > prevValue) {
+			if (map[y][x] <= 0 || map[y][x] > prevValue) {
 				map[y][x] = ++prevValue;
 				return true;
 			}
@@ -121,6 +129,16 @@ public class GameMap {
 		} catch (IndexOutOfBoundsException e) {
 			return false;
 		}
+	}
+	
+	public boolean isAttainable(Point point) {
+		for (Point p : pointUtil.getNear(point)) {
+			int length = getField(p); 
+			if (length != -1 && length != 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public Point findPoint(int value) {

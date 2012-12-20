@@ -25,4 +25,6 @@ public class TreeNode<T> {
 	public T getData() {
 		return data;
 	}
+	
+	
 }

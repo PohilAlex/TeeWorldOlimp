@@ -35,13 +35,13 @@ public class Main {
 						map[i][j] = -1;
 						break;
 					case 'n':
-						map[i][j] = -2;
+						map[i][j] = MapLogic.FIRST_START_POSIRION_KEY;
 						break;
 					case 'x':
-						map[i][j] = -3;
+						map[i][j] = MapLogic.SECOND_START_POSITION_KEY;
 						break;
 					case 'R':
-						map[i][j] = -4;
+						map[i][j] = MapLogic.END_POSITION_KEY;
 						break;
 					default:
 						break;
