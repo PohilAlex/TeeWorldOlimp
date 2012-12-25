@@ -1,25 +1,40 @@
 package mlsdev.teewold;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
-public class PathNode{
+public class PathNode {
 
 	Point data;
-	PathNode parent;
-	ArrayList<PathNode> children;
+	HashSet<PathNode> parents;
+	HashSet<PathNode> children;
+	HashMap<Point, PathNode> allNode;
 	
-	public PathNode() {
-		this(null);
+	public PathNode(Point data) {
+		this.data = data;
+		parents = null;
+		children = new HashSet<PathNode>();
+		allNode = new HashMap<Point, PathNode>();
+		allNode.put(data, this);
 	}
 	
+	private PathNode() {
+		parents = null;
+		children = new HashSet<PathNode>();
+	}
+	
+	/*
 	public PathNode(PathNode parent) {
 		this.parent = parent;
-		children = new ArrayList<PathNode>();
-	}
+		children = new HashSet<PathNode>();
+	} */
+	
 	
 	@Override
 	public int hashCode() {
+		return data.hashCode();
+		/*
 		final int prime = 131;
 		int result = 3;
 		result = prime * result + ((data == null) ? 0 : data.hashCode());
@@ -27,12 +42,20 @@ public class PathNode{
 		for (PathNode child : children) {
 			result = prime * result + ((child != null && child.data != null) ? child.data.hashCode() : 0);
 		}
-		return result;
+		return result;*/
 	}
 	
 	public PathNode add(Point data) {
-		PathNode child = new PathNode(this);
+		PathNode child = new PathNode();
 		child.data = data;
+		if (allNode.containsKey(data)) {
+			child = allNode.get(data);
+		} else {
+			child.parents = new HashSet<PathNode>();
+			allNode.put(data, child);
+		}
+		child.parents.add(this);
+		child.allNode = allNode;
 		children.add(child);
 		return child;
 	}
@@ -43,6 +66,14 @@ public class PathNode{
 	
 	public void setData(Point data) {
 		this.data = data;
+	}
+	
+	public HashSet<PathNode> getParents() {
+		return parents;
+	}
+
+	public HashSet<PathNode> getChildren() {
+		return children;
 	}
 
 	public HashSet<PathNode> getLastLeyer() {
@@ -70,7 +101,8 @@ public class PathNode{
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		PathNode other = (PathNode) obj;
-
+		return data.equals(other);
+		/*
 		if (data == null) {
 			if (other.data != null) return false;
 		} else if (!data.equals(other.data)) return false;
@@ -85,15 +117,33 @@ public class PathNode{
 			if (other.children != null) return false;
 		} else {
 			if (children.size() != other.children.size()) return false;
-			boolean res = true;
-			for (int i = 0; i < children.size(); i++) {
-				res = res && children.get(i).data.equals(other.children.get(i).data);
-			}
-			if (!res) {
-				return false;
-			}
+			
+			//boolean res = true;
+			//for (int i = 0; i < children.size(); i++) {
+			//	res = res && children.get(i).data.equals(other.children.get(i).data);
+			//}
+			//if (!res) {
+			//	return false;
+			//}
 		}
 		return true;
+		*/
 	}
 	
+	public void print() {
+		ArrayList<PathNode> currPath = new ArrayList<PathNode>();
+		ArrayList<PathNode> nextPath = new ArrayList<PathNode>();
+		currPath.add(this);
+		while (currPath.size() > 0) {
+			for (PathNode node : currPath) {
+				//System.out.print(node.data.y + " " + node.data.x + "\t");
+				if (node.children != null) {
+					nextPath.addAll(node.children);
+				}
+			}
+			currPath = nextPath;
+			nextPath = new ArrayList<PathNode>();
+			System.out.println();
+		}
+	}
 }

@@ -1,6 +1,8 @@
 package mlsdev.teewold;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Currency;
 import java.util.HashSet;
 
 //http://www.gamedev.ru/pages/zhekas/articles/Poisk_kratchayshego_puti
@@ -11,6 +13,9 @@ public class MapLogic {
 	public static int SECOND_START_POSITION_KEY = -3;
 	public static int END_POSITION_KEY = -4;
 	
+	public static String BULLSHIT_KEY = "This is bullshit!";
+	public static String WIN_KEY = "nitro wins!";
+	
 	GameMap nMap;
 	GameMap xMap;
 	
@@ -19,7 +24,7 @@ public class MapLogic {
 		xMap = new GameMap(cloneArray(map));
 	}
 	
-	public void work() {
+	public String work() {
 		Point nStart = nMap.findPoint(FIRST_START_POSIRION_KEY);
 		Point xStart = xMap.findPoint(SECOND_START_POSITION_KEY);
 		Point endPoint = nMap.findPoint(END_POSITION_KEY);
@@ -27,41 +32,60 @@ public class MapLogic {
 		nMap.setStartPoint(nStart);
 		nMap.calcDistance();
 		
+		//Check finish attainable
 		if (!nMap.isAttainable(endPoint)) {
-			System.out.println("This is bullshit!");
-			return;
+			System.out.println(BULLSHIT_KEY);
+			return BULLSHIT_KEY;
 		}
-		System.out.println("########################################");
 		xMap.setStartPoint(xStart);
 		xMap.calcDistance();
 		
+		//Check nitro win
+		if (nMap.getField(endPoint) < xMap.getField(endPoint) || xMap.getField(endPoint) <= 0) {
+			System.out.println(WIN_KEY);
+			return WIN_KEY;
+		}
 		PathNode path = nMap.findMinPath(endPoint);
-		HashSet<PathNode> currNode = new HashSet<PathNode>();
-		HashSet<PathNode> goodNode = path.getLastLeyer();
+		if (nMap.getField(endPoint) == xMap.getField(endPoint)) {
+			for (PathNode node : path.children) {
+				Point point = node.getData();
+				if (nMap.getField(point) < xMap.getField(point)) {
+					System.out.println(WIN_KEY);
+					return WIN_KEY;
+				}
+			}
+		}
 		
-		boolean isNitroWin = false;
-		while (goodNode.size() > 0 && !isNitroWin) {
-			currNode.clear();
-			for (PathNode node : goodNode) {
-				if (node.parent == null) {
-					System.out.println("nitro wins!");
-					isNitroWin = true;
-				} else {
-					currNode.add(node.parent);
-				}
-			}
-			goodNode.clear();
+		//Find cross point
+		ArrayList<Point> bestPath = new ArrayList<Point>();
+		HashSet<PathNode> currNode = path.getLastLeyer();
+		
+		while (currNode != null) {
+			int xMax = Integer.MIN_VALUE;
+			PathNode bestNode = null;
 			for (PathNode node : currNode ) {
-				if (nMap.getField(node.getData()) < xMap.getField(node.getData())) {
-					goodNode.add(node);
+				int length = xMap.getField(node.getData());
+				if (xMax < length) {
+					xMax = length;
+					bestNode = node;
 				}
 			}
-			printLayer(goodNode, nMap);
+			bestPath.add(bestNode.getData());
+			currNode = bestNode.parents;
 		}
-		if (!isNitroWin) {
-			System.out.println("/////////////");
-			printLayer(currNode, nMap);
+
+		int xMin = Integer.MAX_VALUE;
+		Point bestPoint = null;
+		for (Point point : bestPath) {
+			int xLenght = xMap.getField(point);
+			if (nMap.getField(point) >= xLenght && xLenght < xMin) {
+				xMin = xLenght;
+				bestPoint = point;
+			}
 		}
+		String result = bestPoint.y + " " + bestPoint.x + " " + (nMap.getField(bestPoint) - 1);
+		System.out.println(result);
+		return result;
 	}
 	
 	public void printLayer(HashSet<PathNode> layer, GameMap map) {
@@ -79,5 +103,4 @@ public class MapLogic {
 		}
 		return newArray;
 	}
-	
 }

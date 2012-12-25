@@ -8,7 +8,6 @@ public class GameMap {
 	int[][] map;
 	Point startPoint;
 	PointUtil pointUtil;
-	//boolean isCalcDistanse;
 	
 	public GameMap(int[][] map) {
 		this.map = map;
@@ -61,7 +60,7 @@ public class GameMap {
 	}
 	
 	public PathNode findMinPath(Point endPoint) {
-		PathNode path = new PathNode();
+		PathNode path = new PathNode(endPoint);
 		ArrayList<PathNode> currNode = new ArrayList<PathNode>();
 		ArrayList<PathNode> nextNode = new ArrayList<PathNode>();
 		Comparator<Point> pointComerator = new Comparator<Point>() {
@@ -76,7 +75,7 @@ public class GameMap {
 				return getField(o1) - getField(o2);
 			}
 		};
-		path.setData(endPoint);
+		
 		//Anilize fist point in path
 		ArrayList<Point> nextPoints = pointUtil.getNear(endPoint);
 		Point min = Collections.min(nextPoints, pointComerator);
@@ -84,10 +83,8 @@ public class GameMap {
 		for (Point point : nextPoints) {
 			if (getField(point) == getField(min)) {
 				currNode.add(path.add(point));
-				System.out.println(point.y  + " " + point.x + " - " + getField(point));
 			}
 		}
-		System.out.println("@@@@@@@@@");
 		
 		//Analize other point in path
 		while (currNode.size() > 0) {
@@ -101,13 +98,11 @@ public class GameMap {
 				for (Point nextPoint : pointUtil.getNear(point)) {
 					if (getField(nextPoint) == currLength - 1) {
 						nextNode.add(node.add(nextPoint));
-						System.out.println(nextPoint.y  + " " + nextPoint.x + " - " + getField(nextPoint));
 					}
 				}
 			}
 			currNode = nextNode;
 			nextNode = new ArrayList<PathNode>();
-			System.out.println("@@@@@@@@@");
 		}	
 		return path;
 	}
